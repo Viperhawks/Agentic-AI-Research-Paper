@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beyond Conceptual Retrofitting — The Foundations of Agentic AI</title>
+<meta name="description" content="A rigorous deconstruction and methodological synthesis of agentic AI: philosophical foundations, orchestration topologies, protocol stacks, and trajectory-aware evaluation.">
+<style>
+  :root{
+    --white:#ffffff;
+    --black:#000000;
+    --ink:#0a0a0a;
+    --ink2:#2b2b2b;
+    --muted:#6b6b6b;
+    --muted2:#8a8a8a;
+    --line:rgba(0,0,0,.12);
+    --line2:rgba(0,0,0,.07);
+    --glass:rgba(255,255,255,.62);
+    --glass2:rgba(255,255,255,.38);
+    --shadow:0 18px 44px -28px rgba(0,0,0,.42);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--white);
+    color:var(--ink);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;height:auto}
+  ::selection{background:#000;color:#fff}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+
+  /* ---------- mobile nav ---------- */
+  .burger{
+    display:none;width:42px;height:42px;border-radius:13px;flex-direction:column;
+    align-items:center;justify-content:center;gap:4.5px;
+    border:1px solid var(--line);background:var(--glass);cursor:pointer;
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    -webkit-tap-highlight-color:transparent;padding:0;
+  }
+  .burger span{display:block;width:17px;height:1.6px;background:var(--black);border-radius:2px;transition:.3s cubic-bezier(.2,.8,.2,1)}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6.1px) rotate(45deg)}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0;transform:scaleX(.4)}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.1px) rotate(-45deg)}
+  .mnav{
+    display:none;position:fixed;top:60px;left:0;right:0;z-index:55;
+    padding:14px 18px calc(18px + env(safe-area-inset-bottom));
+    background:#fbfbfb;-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);
+    border-bottom:1px solid var(--line2);box-shadow:0 22px 40px -30px rgba(0,0,0,.55);
+    max-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  .mnav.open{display:block;animation:drop .32s cubic-bezier(.2,.8,.2,1)}
+  @keyframes drop{from{transform:translateY(-12px)}to{transform:none}}
+  .mnav a{
+    display:block;padding:14px 18px;margin-bottom:8px;border-radius:14px;
+    border:1px solid var(--line);background:var(--glass);
+    font-size:.95rem;font-weight:650;letter-spacing:.01em;
+    -webkit-tap-highlight-color:transparent;transition:.2s ease;
+  }
+  .mnav a:last-child{margin-bottom:0}
+  .mnav a:active{background:var(--black);color:#fff;border-color:var(--black)}
+  body.locked{overflow:hidden}
+
+  /* ---------- desktop nav ---------- */
+  .navlinks{display:flex;gap:8px;font-size:13px;flex-wrap:nowrap;overflow:hidden;justify-content:flex-end}
+  .pill{
+    padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+    background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    color:var(--ink2);transition:.25s cubic-bezier(.2,.8,.2,1);
+  }
+  .pill:hover{background:var(--black);color:#fff;border-color:var(--black);transform:translateY(-1px)}
+  @media(max-width:1360px){.navlinks{display:none}.burger{display:flex}}
+
+  /* ---------- animated background ---------- */
+  .bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orb{
+    position:absolute;border-radius:50%;filter:blur(70px);opacity:.16;
+    background:radial-gradient(circle at 30% 30%, #ffffff, #000 72%);
+    animation:float 22s ease-in-out infinite;
+  }
+  .orb.a{width:520px;height:520px;top:-140px;left:-120px}
+  .orb.b{width:420px;height:420px;top:18%;right:-140px;animation-delay:-7s}
+  .orb.c{width:380px;height:380px;bottom:-120px;left:35%;animation-delay:-13s;opacity:.09}
+  @keyframes float{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    33%{transform:translate3d(60px,-50px,0) scale(1.12)}
+    66%{transform:translate3d(-50px,40px,0) scale(.92)}
+  }
+  .grain{
+    position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.7'/></svg>");
+  }
+  body>*{position:relative;z-index:2}
+
+  /* ---------- header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:60;
+    background:rgba(255,255,255,.72);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    backdrop-filter:blur(18px) saturate(140%);
+    border-bottom:1px solid var(--line2);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px}
+  .brand{font-size:13.5px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:9px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--black);animation:pulse 2.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.65);opacity:.45}}
+
+  /* ---------- glass buttons ---------- */
+  .glass{
+    position:relative;display:inline-flex;align-items:center;gap:9px;
+    padding:13px 24px;border-radius:999px;font-size:.94rem;font-weight:600;
+    color:#fff;background:var(--black);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 10px 30px -14px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.18);
+    overflow:hidden;isolation:isolate;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, color .3s ease, background .3s ease;
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  }
+  .glass::before{
+    content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+    background:linear-gradient(120deg,rgba(255,255,255,.30),rgba(255,255,255,0) 42%,rgba(255,255,255,.16) 78%,rgba(255,255,255,0));
+    opacity:0;transition:opacity .35s ease;transform:translateX(-30%);
+  }
+  .glass::after{
+    content:"";position:absolute;top:0;left:-120%;width:55%;height:100%;z-index:-1;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+    transform:skewX(-20deg);transition:left .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .glass:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 20px 44px -16px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.28)}
+  .glass:hover::before{opacity:1}
+  .glass:hover::after{left:150%}
+  .glass:active{transform:translateY(-1px) scale(.99)}
+  .glass.ghost{
+    background:rgba(255,255,255,.55);color:var(--ink);border-color:var(--line);
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .glass.ghost:hover{background:var(--black);color:#fff;border-color:var(--black)}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:104px 0 84px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink);padding:8px 15px;border-radius:999px;
+    background:var(--glass);border:1px solid var(--line);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    box-shadow:0 8px 24px -18px rgba(0,0,0,.5);
+  }
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--black);display:block}
+  h1{
+    margin:24px 0 0;font-size:clamp(2.05rem,5.6vw,3.6rem);
+    line-height:1.1;letter-spacing:-.028em;font-weight:700;max-width:24ch;text-wrap:balance;
+  }
+  h1 em{font-style:normal;display:inline-block;position:relative;padding-right:.12em}
+  h1 em::after{
+    content:"";position:absolute;left:0;bottom:.02em;height:.34em;width:0;background:rgba(0,0,0,.10);border-radius:4px;
+    animation:under 1.3s cubic-bezier(.2,.8,.2,1) .5s forwards;
+  }
+  @keyframes under{to{width:100%}}
+  .lede{margin:24px 0 0;max-width:64ch;color:var(--ink2);font-size:1.06rem}
+  .byline{margin-top:26px;color:var(--muted);font-size:.94rem}
+  .byline strong{color:var(--ink);font-weight:650}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:54px}
+  .stat{
+    background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:20px;
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    box-shadow:var(--shadow);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .3s;
+  }
+  .stat:hover{transform:translateY(-6px);box-shadow:0 26px 50px -30px rgba(0,0,0,.55);border-color:rgba(0,0,0,.28)}
+  .stat b{display:block;font-size:1.7rem;letter-spacing:-.03em;line-height:1.1}
+  .stat span{font-size:.82rem;color:var(--muted)}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- research additions ---------- */
+  .meta{
+    display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:26px;padding-top:20px;
+    border-top:1px solid var(--line2);font-size:.83rem;color:var(--muted);
+  }
+  .meta span{display:inline-flex;align-items:center;gap:7px}
+  .meta b{color:var(--ink);font-weight:650;letter-spacing:.04em;text-transform:uppercase;font-size:.72rem}
+  .keywords{margin-top:14px;display:flex;flex-wrap:wrap;gap:7px}
+  .kw{
+    font-size:.78rem;color:var(--ink2);padding:5px 12px;border-radius:999px;
+    border:1px solid var(--line);background:var(--glass2);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    transition:.25s ease;
+  }
+  .kw:hover{background:var(--black);color:#fff;border-color:var(--black)}
+  .venue{
+    display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:#fff;background:var(--black);padding:6px 13px;border-radius:999px;
+  }
+  .eq{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--glass2);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;overflow-x:auto;font-size:.88rem;color:var(--ink);white-space:nowrap;
+  }
+  .eq b{color:var(--ink)}
+  .defs{display:grid;gap:12px}
+  .def{
+    display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start;
+    background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:16px 20px;
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--shadow);
+    transition:transform .3s ease, border-color .3s;
+  }
+  .def:hover{transform:translateX(5px);border-color:rgba(0,0,0,.28)}
+  .def dt{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.84rem;font-weight:600;
+    color:#fff;background:var(--black);padding:5px 11px;border-radius:8px;justify-self:start;
+  }
+  .def dd{margin:0;color:var(--ink2);font-size:.93rem}
+  @media(max-width:640px){.def{grid-template-columns:1fr}}
+  .contrib{display:grid;gap:12px;counter-reset:c}
+  .citem{
+    display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:start;
+    background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:20px 24px;
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .3s;
+  }
+  .citem:hover{transform:translateY(-5px);border-color:rgba(0,0,0,.28)}
+  .citem .cid{
+    font-family:ui-monospace,Menlo,monospace;font-size:.86rem;font-weight:700;color:#fff;
+    background:var(--black);width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  }
+  .citem h4{margin:2px 0 6px;font-size:1rem}
+  .citem p{margin:0;color:var(--muted);font-size:.93rem}
+  .citem .where{display:inline-block;margin-top:9px;font-size:.72rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  .bib{
+    position:relative;background:#000;color:#eaeaea;border-radius:18px;padding:22px 24px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem;line-height:1.75;
+    overflow-x:auto;white-space:pre;
+  }
+  .copy{
+    position:absolute;top:14px;right:14px;font-family:inherit;font-size:.74rem;letter-spacing:.06em;
+    text-transform:uppercase;color:#000;background:#fff;border:none;border-radius:999px;padding:7px 14px;
+    cursor:pointer;transition:.25s ease;
+  }
+  .copy:hover{background:#e8e8e8;transform:translateY(-1px)}
+  .note{font-size:.84rem;color:var(--muted);margin-top:12px}
+
+  /* ---------- sections ---------- */
+  section{padding:82px 0;border-top:1px solid var(--line2)}
+  h2{font-size:clamp(1.5rem,3.4vw,2.15rem);letter-spacing:-.022em;margin:0 0 14px;font-weight:700;text-wrap:balance}
+  section{scroll-margin-top:64px}
+  [id]{scroll-margin-top:64px}
+  .sub{color:var(--muted);max-width:66ch;margin:0 0 36px;font-size:1rem}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .85s cubic-bezier(.2,.8,.2,1), transform .85s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:960px){.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:900px){.g3,.g2{grid-template-columns:1fr}}
+  @media(max-width:560px){.g4{grid-template-columns:1fr}}
+
+  .card{
+    position:relative;background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:26px;
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    box-shadow:var(--shadow);overflow:hidden;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, border-color .3s ease;
+  }
+  .card::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(140deg,rgba(255,255,255,.85),rgba(255,255,255,0) 46%);
+    opacity:.7;
+  }
+  .card:hover{transform:translateY(-7px);border-color:rgba(0,0,0,.3);box-shadow:0 30px 56px -32px rgba(0,0,0,.6)}
+  .card .n{
+    display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.72rem;letter-spacing:.08em;color:var(--white);background:var(--black);
+    padding:4px 10px;border-radius:999px;
+  }
+  .card h3{margin:14px 0 8px;font-size:1.06rem;letter-spacing:-.012em}
+  .card p{margin:0;color:var(--muted);font-size:.94rem;position:relative;z-index:1}
+
+  /* ---------- table ---------- */
+  .tblwrap{
+    overflow-x:auto;border:1px solid var(--line);border-radius:20px;background:var(--glass);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);padding:8px 6px;
+  }
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line2);vertical-align:top}
+  th{color:var(--muted);font-weight:650;font-size:.74rem;text-transform:uppercase;letter-spacing:.1em}
+  tbody tr{transition:background .25s}
+  tbody tr:hover{background:rgba(0,0,0,.035)}
+  td:first-child{color:var(--ink);font-weight:650;white-space:nowrap}
+  @media(max-width:640px){table{min-width:540px;font-size:.86rem}}
+
+  /* ---------- callout ---------- */
+  .callout{
+    position:relative;border:1px solid var(--line);border-left:3px solid var(--black);
+    background:var(--glass);border-radius:4px 20px 20px 4px;padding:26px 28px;
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .callout h3{margin:0 0 10px;font-size:1.08rem;display:flex;align-items:center;gap:10px}
+  .callout h3::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--black);display:block}
+  .callout p{margin:0;color:var(--ink2)}
+
+  /* ---------- pillars ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .pillar{
+    position:relative;background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:26px;
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+  }
+  .pillar:hover{transform:translateY(-6px);box-shadow:0 28px 54px -30px rgba(0,0,0,.58)}
+  .pillar .tag{
+    display:inline-block;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#fff;
+    background:var(--black);padding:5px 11px;border-radius:999px;
+  }
+  .pillar h3{margin:14px 0 8px;font-size:1.02rem}
+  .pillar p{margin:0;color:var(--muted);font-size:.93rem}
+  .pillar ul{margin:14px 0 0;padding-left:18px;color:var(--ink2);font-size:.93rem}
+  .pillar li{margin:7px 0}
+
+  /* ---------- roadmap ---------- */
+  .roadmap{display:grid;gap:12px}
+  .step{
+    display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start;
+    background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:18px 22px;
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .3s, background .3s;
+  }
+  .step:hover{transform:translateX(6px);border-color:rgba(0,0,0,.3);background:var(--glass2)}
+  .step .num{
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+    background:var(--black);color:#fff;font-weight:700;font-size:.9rem;
+  }
+  .step h4{margin:2px 0 6px;font-size:1rem}
+  .step p{margin:0;color:var(--muted);font-size:.93rem}
+
+  /* ---------- refs ---------- */
+  .refs{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+  .refs li{
+    display:flex;gap:16px;align-items:baseline;background:var(--glass);border:1px solid var(--line);
+    border-radius:16px;padding:14px 18px;font-size:.9rem;color:var(--muted);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .3s;
+  }
+  .refs li:hover{transform:translateY(-3px);border-color:rgba(0,0,0,.28)}
+  .refs b{color:var(--ink);font-weight:700;white-space:nowrap}
+
+  footer{padding:46px 0;border-top:1px solid var(--line2);color:var(--muted);font-size:.87rem}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+
+  /* ---------- responsive / cross-device polish ---------- */
+  /* touch targets: keep interactive elements at >=44px on pointer-coarse devices */
+  @media (pointer:coarse){
+    .glass{padding:15px 26px;min-height:48px}
+    .pill{padding:11px 16px}
+    .kw{padding:8px 14px}
+    .mnav a{padding:16px 18px}
+    .copy{padding:10px 16px}
+    .burger{width:46px;height:46px}
+  }
+  /* never let long words/URLs break the layout */
+  h1,h2,h3,h4,p,li,dd,dt{overflow-wrap:break-word}
+  /* table scroll affordance */
+  .tblwrap{position:relative;scrollbar-width:thin}
+  .tblwrap::-webkit-scrollbar{height:8px}
+  .tblwrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:8px}
+  .tblwrap::-webkit-scrollbar-track{background:transparent}
+
+  /* --- tablets --- */
+  @media(max-width:1024px){
+    .wrap{padding:0 20px}
+    h1{max-width:none}
+    .hero{padding:84px 0 68px}
+    section{padding:70px 0}
+  }
+  /* --- large phones & small tablets --- */
+  @media(max-width:820px){
+    .g4{grid-template-columns:repeat(2,1fr)}
+    .split{grid-template-columns:1fr}
+    .def{grid-template-columns:1fr;gap:10px}
+    .def dt{justify-self:start}
+    .citem{grid-template-columns:46px 1fr;gap:14px}
+    .step{grid-template-columns:38px 1fr;gap:14px}
+    .stats{gap:12px}
+  }
+  /* --- phones --- */
+  @media(max-width:560px){
+    .wrap{padding:0 16px}
+    .hero{padding:64px 0 56px}
+    section{padding:58px 0}
+    h1{font-size:clamp(1.85rem,8.4vw,2.4rem);letter-spacing:-.025em}
+    h2{font-size:clamp(1.4rem,6.4vw,1.7rem)}
+    .lede{font-size:1rem}
+    .sub{font-size:.96rem;margin-bottom:28px}
+    .byline{font-size:.9rem}
+    .meta{gap:8px 18px;font-size:.8rem}
+    .keywords{gap:6px}
+    .kw{font-size:.74rem}
+    .g3,.g2,.g4{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr);margin-top:40px}
+    .stat{padding:16px;border-radius:16px}
+    .stat b{font-size:1.45rem}
+    .card,.pillar{padding:20px;border-radius:18px}
+    .callout{padding:20px 18px}
+    .citem{grid-template-columns:1fr;gap:10px;padding:18px}
+    .citem .cid{width:38px;height:38px;font-size:.8rem}
+    .step{grid-template-columns:1fr;gap:10px;padding:16px 18px}
+    .step .num{width:34px;height:34px;font-size:.82rem}
+    .cta .glass{width:100%;justify-content:center}
+    .refs li{flex-direction:column;gap:4px}
+    .eq{font-size:.78rem;padding:14px 16px}
+    .bib{font-size:.72rem;padding:18px 16px}
+    .copy{position:static;display:block;margin-bottom:12px}
+    footer .wrap{flex-direction:column;gap:6px}
+    .orb.a{width:300px;height:300px}
+    .orb.b{width:240px;height:240px}
+    .orb.c{width:220px;height:220px}
+    .reveal{transform:translateY(18px)}
+  }
+  /* --- very small phones --- */
+  @media(max-width:380px){
+    .wrap{padding:0 13px}
+    h1{font-size:1.7rem}
+    .stats{grid-template-columns:1fr}
+    .brand{font-size:12.5px}
+  }
+  /* --- wide desktops --- */
+  @media(min-width:1440px){
+    .wrap{max-width:1180px}
+    .hero{padding:118px 0 96px}
+    section{padding:96px 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="bgfx"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+<div class="grain"></div>
+
+<header class="site">
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span>Beyond Conceptual Retrofitting</div>
+    <nav class="navlinks">
+      <a class="pill" href="#abstract">Abstract</a>
+      <a class="pill" href="#thesis">Thesis</a>
+      <a class="pill" href="#formal">Formalism</a>
+      <a class="pill" href="#topologies">Topologies</a>
+      <a class="pill" href="#evaluation">Evaluation</a>
+      <a class="pill" href="#references">Refs</a>
+    </nav>
+    <button class="burger" id="burger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mnav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mnav" id="mnav">
+  <a href="#abstract">Abstract</a>
+  <a href="#thesis">Thesis</a>
+  <a href="#foundations">Philosophical Foundations</a>
+  <a href="#grounding">Epistemic Grounding</a>
+  <a href="#formal">Formal Framework</a>
+  <a href="#topologies">Orchestration Topologies</a>
+  <a href="#protocols">Protocol Stack</a>
+  <a href="#evaluation">Evaluation</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#validity">Limitations</a>
+  <a href="#references">References</a>
+  <a href="https://zenodo.org/records/24163283" target="_blank" rel="noopener">Published on Zenodo ↗</a>
+</div>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><i></i>Research Paper · Agentic AI</span>
+    <h1>Beyond Conceptual Retrofitting: <em>The Foundations of Agentic AI</em></h1>
+    <p class="lede">A foundational deconstruction and rigorous methodological synthesis of agentic artificial intelligence — philosophical foundations of agency, multi-agent orchestration topologies, the standardized protocol stack, and trajectory-aware evaluation methodology.</p>
+    <p class="byline"><strong>Astel Antony</strong> — Independent AI Researcher · Founder &amp; CEO, Padikam · Panangad VHSS</p>
+    <div class="keywords">
+      <span class="kw">Agentic AI</span><span class="kw">Multi-Agent Systems</span><span class="kw">LLM Agents</span>
+      <span class="kw">MCP</span><span class="kw">A2A Protocol</span><span class="kw">Neuro-Symbolic AI</span>
+      <span class="kw">Trajectory Evaluation</span><span class="kw">Conceptual Retrofitting</span>
+    </div>
+    <div class="meta">
+      <span><span class="venue">Published</span></span>
+      <span><b>DOI</b> 10.5281/zenodo.24163283</span>
+      <span><b>Published</b> 12 Nov 2026 · v1.0</span>
+      <span><b>Publisher</b> Padikam</span>
+      <span><b>License</b> CC BY 4.0</span>
+    </div>
+    <div class="cta">
+      <a class="glass" href="https://zenodo.org/records/24163283" target="_blank" rel="noopener">Read the published version <span aria-hidden="true">→</span></a>
+      <a class="glass ghost" href="https://doi.org/10.5281/zenodo.24163283" target="_blank" rel="noopener">DOI resolver</a>
+      <a class="glass ghost" href="#thesis">Read the thesis</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>07</b><span>Core sections</span></div>
+      <div class="stat"><b>06</b><span>Key references</span></div>
+      <div class="stat"><b>04</b><span>Orchestration topologies</span></div>
+      <div class="stat"><b>02</b><span>Protocol tiers (MCP · A2A)</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="abstract">
+  <div class="wrap reveal">
+    <h2>Abstract</h2>
+    <p class="sub">The contemporary AI landscape is migrating from passive, prompt-driven language models toward autonomous agentic systems and multi-agent collectives — a transition plagued by conceptual retrofitting.</p>
+    <div class="callout">
+      <h3>Abstract</h3>
+      <p>This paper presents a foundational deconstruction and rigorous methodological synthesis of agentic artificial intelligence. Philosophically, we re-examine agency through Dennett's intentional stance and Bandura's social cognitive theory, demonstrating that modern LLM agents possess operational, emergent agency rather than formal symbolic intentionality. Epistemologically, we analyze environmental perception, contrasting semantically repairable linguistic perturbations with the catastrophic collapse of factual grounding induced by external tool-execution failure. Architecturally, we formulate a taxonomy of multi-agent orchestration across centralized, decentralized, hierarchical, and dynamic topologies, dissecting the trade-off between first-class checkpointed state graphs and emergent conversational transcript histories. We formalize the emerging protocol stack, demonstrating why the vertical actuation of MCP and the horizontal peer negotiation of A2A represent mutually indispensable, structurally distinct coordination tiers. Finally, we challenge conventional outcome-based benchmarks with a trajectory-aware evaluation paradigm centred on Stability-Gated Accuracy (SGA) and entropy-injection dynamics, charting a roadmap toward neuro-symbolic hybrid intelligence.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contributions">
+  <div class="wrap reveal">
+    <h2>Contributions</h2>
+    <p class="sub">Five claims this paper advances, each tied to the section in which it is developed.</p>
+    <div class="contrib">
+      <div class="citem"><div class="cid">C1</div><div><h4>Categorical separation of agency types</h4><p>Formalises the distinction between classical symbolic agency (BDI, SOAR, POMDP) and contemporary neural agency (autoregressive generation under external harness loops), showing that the two fail along orthogonal axes: brittle predictability versus stochastic collapse.</p><span class="where">§1–§2</span></div></div>
+      <div class="citem"><div class="cid">C2</div><div><h4>Principle of asymmetric epistemic resilience</h4><p>Establishes that user-side noise is semantically repairable through pre-trained priors, whereas tool-side noise severs the perceptual channel to external reality and induces immediate factual collapse — with a consequent rationalisation failure mode.</p><span class="where">§3</span></div></div>
+      <div class="citem"><div class="cid">C3</div><div><h4>Taxonomy of orchestration topologies</h4><p>Formalises four coordination topologies and their trade-offs in scalability ceiling, token cost profile, failure-recovery semantics, and fault tolerance, anchored by the state-mechanics distinction.</p><span class="where">§4</span></div></div>
+      <div class="citem"><div class="cid">C4</div><div><h4>Structurally distinct protocol tiers</h4><p>Argues that MCP (vertical actuation) and A2A (horizontal negotiation) are not competing alternatives but mutually indispensable coordination tiers with different invariants and failure boundaries.</p><span class="where">§5</span></div></div>
+      <div class="citem"><div class="cid">C5</div><div><h4>Trajectory-aware evaluation via SGA</h4><p>Introduces Stability-Gated Accuracy, which collapses execution scores to zero when any intermediate step-wise validity indicator fails, pairing it with entropy injection to observe stability dynamics under realistic noise.</p><span class="where">§6</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="thesis">
+  <div class="wrap reveal">
+    <h2>The thesis</h2>
+    <p class="sub">The field's vocabulary was borrowed from classical symbolic AI and mapped onto stochastic next-token substrates. That mapping is a category error — and it hides the real engineering problems.</p>
+    <div class="grid g3">
+      <article class="card">
+        <span class="n">01 / RETROFITTING</span>
+        <h3>Concepts are not architectures</h3>
+        <p>An LLM prompt is not an agent's belief. A JSON-RPC tool invocation is not an intention. Labeling generative pipelines with classical symbolic terms describes behaviour rhetorically, not structurally.</p>
+      </article>
+      <article class="card">
+        <span class="n">02 / AGENCY</span>
+        <h3>Operational, not formal, agency</h3>
+        <p>Modern LLM agents possess operational, emergent agency rather than formal symbolic intentionality. They fail stochastically — hallucination, semantic drift, reasoning collapse — not predictably.</p>
+      </article>
+      <article class="card">
+        <span class="n">03 / RESET</span>
+        <h3>An epistemological reset</h3>
+        <p>Separating genuine architectural novelty from cognitive illusion is a precondition for enterprise deployment, mission-critical operation, and trustworthy autonomy.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="foundations">
+  <div class="wrap reveal">
+    <h2>Philosophical foundations</h2>
+    <p class="sub">Agency is a relational attribution grounded in behavioural capability and environmental interaction — not an intrinsic property that emerges from model scale.</p>
+    <div class="split" style="margin-bottom:16px">
+      <div class="pillar">
+        <span class="tag">Dennett, 1971 — Intentional Stance</span>
+        <h3>Three postures for predicting behaviour</h3>
+        <ul>
+          <li><strong>Physical stance</strong> — semiconductor physics, floating-point arithmetic</li>
+          <li><strong>Design stance</strong> — source code, control-flow algorithms</li>
+          <li><strong>Intentional stance</strong> — beliefs, desires, rational action</li>
+        </ul>
+        <p style="margin-top:12px">Classically, design and intentional stances were formally aligned. With LLMs they diverge: practitioners take the intentional stance because output mirrors deliberation, yet at design level there are no discrete mental representations.</p>
+      </div>
+      <div class="pillar">
+        <span class="tag">Bandura, 1986 — Social Cognitive Theory</span>
+        <h3>Four core properties of agency</h3>
+        <ul>
+          <li><strong>Intentionality</strong> — action plans and strategies</li>
+          <li><strong>Forethought</strong> — temporal projection of goals</li>
+          <li><strong>Self-reactiveness</strong> — execution monitoring, self-regulation</li>
+          <li><strong>Self-reflectiveness</strong> — evaluating thought and action</li>
+        </ul>
+        <p style="margin-top:12px">In LLM agents these capabilities are externalised simulations — forced by a software scaffold that re-encodes prior output as newly conditioned input context.</p>
+      </div>
+    </div>
+
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr><th>Architectural dimension</th><th>Classical symbolic lineage</th><th>Contemporary neural lineage</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Foundational mechanism</td><td>Explicit formal logic, algorithmic planning, state machines</td><td>Autoregressive statistical token generation, attention layers</td></tr>
+          <tr><td>Cognitive framework</td><td>Formal BDI, SOAR, algorithmic POMDP belief updates</td><td>Simulated BDI via prompt engineering, external harness loops</td></tr>
+          <tr><td>State representation</td><td>Persistent, structured, symbolic knowledge bases</td><td>Ephemeral context window, external vector stores, KV cache</td></tr>
+          <tr><td>Decision process</td><td>Deterministic deduction or formal probabilistic planning</td><td>Stochastic sampling across learned continuous manifolds</td></tr>
+          <tr><td>Failure modality</td><td>Brittleness on unmodeled edge cases</td><td>Stochastic hallucination, semantic drift, reasoning collapse</td></tr>
+          <tr><td>Verifiability</td><td>Fully auditable, mathematically provable</td><td>Opaque, post-hoc explanations with probabilistic behaviour</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:12px;font-size:.84rem;color:var(--muted)">Table 1 — Comparative matrix of symbolic versus neural agentic lineages. Classical autonomy (Wooldridge &amp; Jennings, 1995) rests on autonomy, reactivity, proactivity, and social ability.</p>
+  </div>
+</section>
+
+<section id="grounding">
+  <div class="wrap reveal">
+    <h2>Epistemic grounding</h2>
+    <p class="sub">How does an agent keep an accurate, verifiable representation of external reality through API calls, database queries, and document parsers?</p>
+    <div class="grid g2">
+      <article class="card">
+        <span class="n">N<sub>user</sub> · USER-SIDE PERTURBATIONS</span>
+        <h3>Semantically repairable</h3>
+        <p>Ambiguous prompts, contradictory multi-turn instructions, conversational topic drift, lexical redundancy, boundary probing. These operate at the linguistic level, where dense pre-trained world knowledge and semantic priors fill the inferential gap.</p>
+      </article>
+      <article class="card">
+        <span class="n">N<sub>tool</sub> · TOOL-SIDE PERTURBATIONS</span>
+        <h3>Catastrophic factual collapse</h3>
+        <p>Execution exceptions, malformed or truncated JSON, missing attributes, erroneous returns, misleading signals. These sever the agent's objective perceptual channel to external reality — internal weights cannot infer an unobserved environmental state.</p>
+      </article>
+    </div>
+    <div class="callout" style="margin-top:22px">
+      <h3>Principle of Asymmetric Epistemic Resilience</h3>
+      <p>Language model agents are remarkably robust against user-side noise but catastrophically fragile against tool-side disruptions. Rather than executing formal exception recovery, autoregressive models frequently rationalise anomalous tool output, fabricating spurious logical chains to bridge the epistemic vacuum.</p>
+    </div>
+  </div>
+</section>
+
+<section id="formal">
+  <div class="wrap reveal">
+    <h2>Formal framework &amp; notation</h2>
+    <p class="sub">The paper's claims are stated over a compact vocabulary: agents, their observation channels, state representations, and protocol invariants.</p>
+    <div class="defs">
+      <dl class="def"><dt>𝔄 = ⟨S, O, π⟩</dt><dd>An agent is a triple of a state space <b>S</b>, an observation space <b>O</b> (linguistic context <i>and</i> tool-returned signals), and a policy <b>π</b> implemented as autoregressive next-token distribution over <b>O</b>.</dd></dl>
+      <dl class="def"><dt>τ = ⟨a₁ … aₜ⟩</dt><dd>A trajectory: the ordered sequence of actions taken by an agent over an episode, including intermediate tool invocations and their returns.</dd></dl>
+      <dl class="def"><dt>Nᵤ, Nₜ</dt><dd>Two noise classes: <b>user-side perturbations</b> (ambiguity, contradiction, drift) acting on the linguistic channel, and <b>tool-side perturbations</b> (exceptions, malformed payloads, erroneous data) acting on the actuation channel.</dd></dl>
+      <dl class="def"><dt>ρ(Nᵤ) ≫ ρ(Nₜ)</dt><dd>The asymmetry claim: resilience of factual grounding to user-side noise is substantially greater than to tool-side noise, because the latter severs the objective perceptual channel to external reality.</dd></dl>
+      <dl class="def"><dt>G = (V, E, σ)</dt><dd>A checkpointed state graph over nodes <b>V</b> and typed edges <b>E</b>, with durable checkpoints <b>σ</b> enabling deterministic rollback, replay, and human-in-the-loop interruption.</dd></dl>
+      <dl class="def"><dt>𝒫 = ⟨MCP, A2A⟩</dt><dd>The protocol stack: a vertical tier (agent↔tool actuation, JSON-RPC 2.0) and a horizontal tier (peer negotiation, Agent Cards, stateful task lifecycles).</dd></dl>
+    </div>
+
+    <h3 style="margin-top:34px">Stability-Gated Accuracy</h3>
+    <p class="sub" style="margin-bottom:14px">Given a trajectory τ with step-wise validity indicators vᵢ ∈ {0,1} and a task-level outcome score s ∈ [0,1]:</p>
+    <div class="eq"><b>SGA(τ)</b> = s · ∏<sub>i=1..t</sub> vᵢ &nbsp;&nbsp;—&nbsp;&nbsp; <b>τ</b> = ⟨a₁ … aₜ⟩</div>
+    <p class="note">Any intermediate validity failure zeroes the episode score. Entropy injection perturbs the observation channel at step k and measures the divergence of the downstream trajectory, yielding a stability curve rather than a single point estimate.</p>
+
+    <div class="tblwrap" style="margin-top:26px">
+      <table>
+        <thead><tr><th>Metric</th><th>What it measures</th><th>Failure it exposes</th></tr></thead>
+        <tbody>
+          <tr><td>Task success</td><td>Final answer correctness</td><td>Rewards stochastic luck; blind to trajectory integrity</td></tr>
+          <tr><td>Trajectory validity</td><td>Per-step admissibility of the action sequence</td><td>Detects invalid intermediate states</td></tr>
+          <tr><td>Stability-Gated Accuracy</td><td>Outcome conditioned on all steps valid</td><td>Collapses score on any invalid intermediate step</td></tr>
+          <tr><td>Entropy-injection delta</td><td>Score / trajectory divergence under injected noise</td><td>Fragility of grounding and reasoning under perturbation</td></tr>
+          <tr><td>Tool-failure recovery rate</td><td>Recovery from Nₜ perturbations without fabrication</td><td>Detects rationalisation in place of exception handling</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Table 2 — Evaluation instruments proposed in §6, ordered from conventional baseline to trajectory-aware metrics.</p>
+  </div>
+</section>
+
+<section id="topologies">
+  <div class="wrap reveal">
+    <h2>Orchestration topologies</h2>
+    <p class="sub">The structural pattern of an autonomous collective determines its scalability ceiling, token cost profile, failure recovery semantics, and fault tolerance.</p>
+    <div class="grid g2">
+      <article class="card">
+        <span class="n">STATE MECHANICS — CHECKPOINTED GRAPHS</span>
+        <h3>State as a first-class typed object</h3>
+        <p>Exemplified by LangGraph: state travels along directed edges with durable checkpoints (SQLite / Redis), enabling deterministic rollback, replay, and human-in-the-loop interruption.</p>
+      </article>
+      <article class="card">
+        <span class="n">STATE MECHANICS — EMERGENT TRANSCRIPTS</span>
+        <h3>State as a conversational log</h3>
+        <p>Exemplified by AutoGen: fine-grained rollback becomes impossible, and context saturation incurs severe cost and coherence penalties as histories grow.</p>
+      </article>
+    </div>
+    <div class="grid g4" style="margin-top:16px">
+      <article class="card"><span class="n">TOPOLOGY 01</span><h3>Centralized</h3><p>Single orchestrator holds global state and dispatches work; strong consistency, single point of failure.</p></article>
+      <article class="card"><span class="n">TOPOLOGY 02</span><h3>Decentralized</h3><p>Peer agents negotiate directly; resilient and horizontally scalable, harder to audit globally.</p></article>
+      <article class="card"><span class="n">TOPOLOGY 03</span><h3>Hierarchical</h3><p>Tiered supervisors delegate and verify sub-tasks; balances control with specialisation depth.</p></article>
+      <article class="card"><span class="n">TOPOLOGY 04</span><h3>Dynamic</h3><p>Roles and topology reconfigure at runtime to match task structure and remaining context budget.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="protocols">
+  <div class="wrap reveal">
+    <h2>The standardized protocol stack</h2>
+    <p class="sub">Two structurally distinct coordination tiers — vertically actuated and horizontally negotiated — that are mutually indispensable.</p>
+    <div class="split">
+      <div class="pillar">
+        <span class="tag">VERTICAL TIER</span>
+        <h3>MCP — Model Context Protocol</h3>
+        <p>Governs vertical agent-to-tool actuation over JSON-RPC 2.0, exposing external world state through a standardised interface.</p>
+        <ul>
+          <li>Agent ↔ tool / resource boundary</li>
+          <li>Uniform actuation semantics</li>
+          <li>Where grounding is won or lost</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <span class="tag">HORIZONTAL TIER</span>
+        <h3>A2A — Agent-to-Agent Protocol</h3>
+        <p>Governs horizontal peer-to-peer collaboration across organisational boundaries using Agent Cards and stateful task lifecycles.</p>
+        <ul>
+          <li>Agent ↔ agent negotiation</li>
+          <li>Capability discovery via Agent Cards</li>
+          <li>Stateful task lifecycle and handoff</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="evaluation">
+  <div class="wrap reveal">
+    <h2>Trajectory-aware evaluation</h2>
+    <p class="sub">Conventional static outcome metrics reward stochastic luck. To enforce procedural integrity, evaluation must inspect the trajectory, not only the destination.</p>
+    <div class="callout">
+      <h3>Stability-Gated Accuracy (SGA)</h3>
+      <p>Execution scores collapse to zero if any intermediate step-wise validity indicator fails. Coupled with entropy-injection dynamics, SGA measures whether an agent's process remains stable under induced uncertainty — the operational signature of a system that can be trusted to repeatably reach a correct answer.</p>
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      <article class="card"><span class="n">01</span><h3>Beyond outcome metrics</h3><p>Final-answer accuracy alone cannot distinguish reasoning from lucky retrieval.</p></article>
+      <article class="card"><span class="n">02</span><h3>Step-wise validity gates</h3><p>Every intermediate indicator must hold for the trajectory to score at all.</p></article>
+      <article class="card"><span class="n">03</span><h3>Entropy injection</h3><p>Inject uncertainty to observe stability dynamics under realistic noise.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap reveal">
+    <h2>Strategic roadmap</h2>
+    <p class="sub">A path toward neuro-symbolic hybrid intelligence, where symbolic verifiability and generative adaptability converge.</p>
+    <div class="roadmap">
+      <div class="step"><div class="num">1</div><div><h4>Adopt trajectory-aware evaluation as default</h4><p>Replace outcome-only benchmarks with SGA so procedural integrity is measured, not assumed.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h4>Instrument the tool boundary</h4><p>Treat tool-side failures as first-class epistemic events — detect collapse early rather than rationalising anomalies.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h4>Choose a state model deliberately</h4><p>Checkpointed graphs where rollback, replay, and human interruption matter; transcripts where fluid dialogue suffices.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h4>Standardise on MCP + A2A</h4><p>Vertical actuation and horizontal negotiation as separate but cooperating coordination tiers.</p></div></div>
+      <div class="step"><div class="num">5</div><div><h4>Converge toward neuro-symbolic hybridity</h4><p>Combine symbolic verifiability with generative adaptability to build trustworthy, auditable autonomous systems.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="validity">
+  <div class="wrap reveal">
+    <h2>Scope, limitations &amp; threats to validity</h2>
+    <p class="sub">Stated explicitly, as befits a synthesis of this kind — what the argument does and does not establish.</p>
+    <div class="grid g3">
+      <article class="card">
+        <span class="n">SCOPE</span>
+        <h3>Methodological synthesis</h3>
+        <p>The paper formalises and systematises existing findings rather than reporting new experiments. Claims are derivable from the cited literature, not from independent measurement.</p>
+      </article>
+      <article class="card">
+        <span class="n">LIMITATION</span>
+        <h3>Framework-dependent asymmetry</h3>
+        <p>The resilience asymmetry is demonstrated for tool-augmented LLM agents under AgentNoiseBench-style conditions. Results may not generalise to non-LLM agents, or to harnesses with explicit exception-handling logic.</p>
+      </article>
+      <article class="card">
+        <span class="n">THREAT</span>
+        <h3>Protocol immaturity</h3>
+        <p>MCP and A2A are evolving specifications. Tier boundaries and invariants described here may shift as the standards mature, and the taxonomy is not yet validated against deployed systems.</p>
+      </article>
+      <article class="card">
+        <span class="n">THREAT</span>
+        <h3>Construct validity of SGA</h3>
+        <p>Step-wise validity indicators must be specified per task domain. A poorly calibrated gate can mask as much as it detects, so gating criteria require independent validation.</p>
+      </article>
+      <article class="card">
+        <span class="n">FUTURE WORK</span>
+        <h3>Neuro-symbolic convergence</h3>
+        <p>Symbolic verifiability supplying monitoring and proof obligations, while generative models supply adaptability — the trajectory the paper charts rather than one it completes.</p>
+      </article>
+      <article class="card">
+        <span class="n">OPEN Q</span>
+        <h3>Unresolved questions</h3>
+        <p>Where exactly does the boundary between “orchestrated behavioural illusion” and genuine emergent agency lie, and what empirical test would settle it?</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="references">
+  <div class="wrap reveal">
+    <h2>References</h2>
+    <p class="sub">Foundational works synthesised in the paper.</p>
+    <ul class="refs">
+      <li><b>[1]</b><span>V. Botti — <em>On whether modern AI is reinventing the wheel</em>, arXiv:2506.01463, 2025.</span></li>
+      <li><b>[2]</b><span>M. Abou Ali, F. Dornaika — Systematic investigation of ninety agentic studies, arXiv:2510.25445, 2025.</span></li>
+      <li><b>[3]</b><span>D. Dennett — Intentional stance, <em>The Journal of Philosophy</em>, 1971.</span></li>
+      <li><b>[4]</b><span>A. Bandura — <em>Social Foundations of Thought and Action</em>, 1986.</span></li>
+      <li><b>[5]</b><span>M. Wooldridge, N. Jennings — Agent architectures, <em>Knowledge Engineering Review</em>, 1995.</span></li>
+      <li><b>[6]</b><span>R. Wang et al. — AgentNoiseBench, arXiv:2602.11348, 2026.</span></li>
+    </ul>
+    <h3 style="margin-top:34px">Citation (BibTeX)</h3>
+    <div class="bib" id="bibtex"><button class="copy" id="copyBib" type="button">Copy</button>@misc{antony2026beyond,
+  title        = {Beyond Conceptual Retrofitting: The Philosophical Foundations,
+                  Orchestration Topologies, and Evaluation Methodologies of Agentic AI},
+  author       = {Antony, Astel},
+  year         = {2026},
+  publisher    = {Padikam},
+  version      = {1.0},
+  doi          = {10.5281/zenodo.24163283},
+  url          = {https://zenodo.org/records/24163283},
+  license      = {CC BY 4.0},
+  keywords     = {agentic AI, multi-agent systems, LLM agents, MCP, A2A,
+                  neuro-symbolic AI, trajectory-aware evaluation},
+  note         = {Preprint, Zenodo record 24163283}
+}</div>
+    <p class="note">Copy the BibTeX record directly into your reference manager. The DOI resolves to the published Zenodo record.</p>
+    <div class="grid g2" style="margin-top:26px">
+      <article class="card">
+        <span class="n">PUBLISHED RECORD</span>
+        <h3>Zenodo · record 24163283</h3>
+        <p>Version 1.0 · Published 12 November 2026 · Publisher: Padikam · Resource type: Preprint · Language: English · Files: <em>Research paper Of Astel.pdf</em> (47.2 kB).</p>
+        <p style="margin-top:12px"><a href="https://zenodo.org/records/24163283" target="_blank" rel="noopener" style="font-weight:650">zenodo.org/records/24163283 →</a></p>
+      </article>
+      <article class="card">
+        <span class="n">RIGHTS &amp; REUSE</span>
+        <h3>CC BY 4.0</h3>
+        <p>Licensed under Creative Commons Attribution 4.0 International — redistribution and reuse are permitted with appropriate credit to Astel Antony. © 2026 Astel Antony.</p>
+        <p style="margin-top:12px"><a href="https://doi.org/10.5281/zenodo.24163283" target="_blank" rel="noopener" style="font-weight:650">doi.org/10.5281/zenodo.24163283 →</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Beyond Conceptual Retrofitting · Astel Antony · Independent AI Researcher, Padikam · Panangad VHSS</span>
+    <span>Published <a href="https://zenodo.org/records/24163283" target="_blank" rel="noopener">10.5281/zenodo.24163283</a> · CC BY 4.0</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el){el.classList.add('in')});
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:.12, rootMargin:'0px 0px -60px 0px'});
+  els.forEach(function(el){io.observe(el)});
+
+  var burger = document.getElementById('burger');
+  var mnav = document.getElementById('mnav');
+  if(burger && mnav){
+    var setMenu = function(open){
+      mnav.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+      document.body.classList.toggle('locked', open);
+    };
+    burger.addEventListener('click', function(){
+      setMenu(!mnav.classList.contains('open'));
+    });
+    mnav.addEventListener('click', function(e){
+      if(e.target.tagName === 'A') setMenu(false);
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') setMenu(false);
+    });
+    window.addEventListener('resize', function(){
+      if(window.innerWidth > 900) setMenu(false);
+    });
+  }
+
+  var btn = document.getElementById('copyBib');
+  if(btn){
+    btn.addEventListener('click', function(){
+      var box = document.getElementById('bibtex');
+      var text = box.innerText.replace(/^Copy\s*/,'');
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text.trim()).then(function(){
+          btn.textContent='Copied';
+          setTimeout(function(){btn.textContent='Copy'},1600);
+        });
+      } else {
+        var ta=document.createElement('textarea');
+        ta.value=text.trim();document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},1600);}catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
